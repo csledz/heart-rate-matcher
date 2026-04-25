@@ -1,0 +1,70 @@
+name: HeartRateMatcher
+options:
+  bundleIdPrefix: com.heartratematcher
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+targets:
+  HeartRateMatcher:
+    type: application
+    platform: iOS
+    sources:
+      - path: HeartRateMatcher
+    info:
+      path: HeartRateMatcher/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: HeartRateMatcher
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: FIT Activity File
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.garmin.fit
+              - public.data
+          - CFBundleTypeName: GPX File
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.xml
+              - com.topografix.gpx
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: com.garmin.fit
+            UTTypeDescription: Garmin FIT Activity
+            UTTypeConformsTo:
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - fit
+          - UTTypeIdentifier: com.topografix.gpx
+            UTTypeDescription: GPX Track
+            UTTypeConformsTo:
+              - public.xml
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - gpx
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.heartratematcher.app
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: HeartRateMatcher/Resources/Info.plist
+  HeartRateMatcherTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: HeartRateMatcherTests
+    dependencies:
+      - target: HeartRateMatcher
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.heartratematcher.app.tests
+        GENERATE_INFOPLIST_FILE: YES
