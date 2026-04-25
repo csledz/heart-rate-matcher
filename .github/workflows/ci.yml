@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & test (iOS Simulator)
+    runs-on: macos-14
+    timeout-minutes: 25
+
+    env:
+      XCODEGEN_VERSION: 2.42.0
+      DESTINATION: "platform=iOS Simulator,name=iPhone 15,OS=latest"
+      SCHEME: HeartRateMatcher
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve packages
+        run: |
+          xcodebuild \
+            -project HeartRateMatcher.xcodeproj \
+            -scheme "$SCHEME" \
+            -resolvePackageDependencies
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project HeartRateMatcher.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Test
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project HeartRateMatcher.xcodeproj \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            test

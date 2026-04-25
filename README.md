@@ -14,7 +14,7 @@ You can also speed up or slow down a ride by a percentage before the merge.
 | Per-channel merge | Done                                                       |
 | Speed tuning      | Done — ±50% / +100%, time-axis rescaling + speed scaling   |
 | GPX export        | Done — Strava-compatible (HR, cadence, atemp, power)       |
-| FIT export        | Not implemented (GPX is sufficient for Strava upload)      |
+| FIT export        | Done — minimal activity file (file_id, record, lap, session, activity) with Garmin-CRC footer |
 | Strava OAuth      | Not implemented (deferred)                                 |
 | Garmin Connect    | Not implemented (deferred)                                 |
 
@@ -77,4 +77,8 @@ correctly when you re-upload the merged file.
 - Garmin Connect ingestion (requires partner approval — FIT file import works
   today as a stand-in).
 - Map preview and per-channel chart preview before exporting.
-- FIT export for direct Garmin Connect upload.
+
+## CI
+
+`.github/workflows/ci.yml` runs on a `macos-14` runner: installs XcodeGen,
+generates the project, builds for the iOS Simulator, and runs all unit tests.

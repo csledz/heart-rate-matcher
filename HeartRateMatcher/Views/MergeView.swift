@@ -6,6 +6,7 @@ struct MergeView: View {
     let rideB: Ride
 
     @State private var configuration: MergeConfiguration
+    @State private var exportFormat: RideSourceFormat = .gpx
     @State private var exportURL: URL?
     @State private var showShareSheet = false
     @State private var lastError: String?
@@ -52,12 +53,28 @@ struct MergeView: View {
                 }
             }
 
+            Section("Export format") {
+                Picker("Format", selection: $exportFormat) {
+                    Text("GPX").tag(RideSourceFormat.gpx)
+                    Text("FIT").tag(RideSourceFormat.fit)
+                }
+                .pickerStyle(.segmented)
+                Text(exportFormat == .fit
+                     ? "FIT preserves power, cadence, and HR with full precision and uploads directly to Garmin Connect."
+                     : "GPX is a text format accepted by Strava and most platforms.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 Button {
                     runExport()
                 } label: {
-                    Label("Merge & export GPX", systemImage: "square.and.arrow.up")
-                        .frame(maxWidth: .infinity)
+                    Label(
+                        "Merge & export \(exportFormat.rawValue.uppercased())",
+                        systemImage: "square.and.arrow.up"
+                    )
+                    .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -85,8 +102,17 @@ struct MergeView: View {
     private func runExport() {
         do {
             let merged = RideMerger().merge(rideA: rideA, rideB: rideB, configuration: configuration)
-            let data = GPXExporter().export(ride: merged)
-            let filename = sanitize(merged.name) + ".gpx"
+            let data: Data
+            let ext: String
+            switch exportFormat {
+            case .gpx:
+                data = GPXExporter().export(ride: merged)
+                ext = "gpx"
+            case .fit:
+                data = FITExporter().export(ride: merged)
+                ext = "fit"
+            }
+            let filename = sanitize(merged.name) + "." + ext
             let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
             try data.write(to: url, options: .atomic)
             exportURL = url
